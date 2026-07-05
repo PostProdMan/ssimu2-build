@@ -1,4 +1,4 @@
-Actions workflow that builds a Windows ssimulacra2_rs.exe in the cloud — so nothing has to be
+# Actions workflow that builds a Windows ssimulacra2_rs.exe in the cloud — so nothing has to be
 # installed on your work machine. It clones the OFFICIAL open-source source, compiles it on a GitHub
 # Windows runner, and uploads the .exe as a downloadable "artifact".
 #
