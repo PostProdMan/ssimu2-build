@@ -1,1 +1,44 @@
+Actions workflow that builds a Windows ssimulacra2_rs.exe in the cloud — so nothing has to be
+# installed on your work machine. It clones the OFFICIAL open-source source, compiles it on a GitHub
+# Windows runner, and uploads the .exe as a downloadable "artifact".
+#
+# HOW TO USE: see HOW-TO-GET-THE-SCORER.md in this same folder (step-by-step, no dev experience needed).
+# Short version: put this file in a fresh GitHub repo at  .github/workflows/build.yml , open the
+# Actions tab, run "Build SSIMULACRA2 scorer", then download the artifact and unzip ssimulacra2_rs.exe
+# into  experiments/ssimulacra2/bin/  in this project.
+
+name: Build SSIMULACRA2 scorer
+
+on:
+  workflow_dispatch:      # adds a manual "Run workflow" button in the Actions tab
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build ssimulacra2_rs (image mode, no video deps)
+        shell: bash
+        run: |
+          # Install the command-line binary from crates.io. --no-default-features skips the optional
+          # VapourSynth/video support (which needs extra native libs), leaving the image comparator we use.
+          cargo install ssimulacra2_rs --no-default-features --root "$RUNNER_TEMP/out" || \
+          cargo install ssimulacra2_rs --root "$RUNNER_TEMP/out"
+          ls -la "$RUNNER_TEMP/out/bin"
+
+      - name: Collect the .exe
+        shell: bash
+        run: |
+          mkdir -p dist
+          cp "$RUNNER_TEMP/out/bin/ssimulacra2_rs.exe" dist/
+          ./dist/ssimulacra2_rs.exe --version || true
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ssimulacra2_rs-windows
+          path: dist/ssimulacra2_rs.exe
+          if-no-files-found: error
 
